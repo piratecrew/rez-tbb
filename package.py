@@ -7,4 +7,5 @@ variants = [
 ]
 
 def commands():
-    env.CMAKE_MODULE_PATH.append("{root}/cmake")
+    if building:
+        env.CMAKE_MODULE_PATH.append("{root}/cmake")

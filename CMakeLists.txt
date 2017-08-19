@@ -3,24 +3,31 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 include(RezBuild)
 include(ExternalProject)
 
-if(${TBB_VERSION} STREQUAL "4.4")
-	set(url_tbb https://www.threadingbuildingblocks.org/sites/default/files/software_releases/linux/tbb44_20160526oss_lin_1.tgz)
-endif()
+set(tbb_version ${TBB_VERSION})
+set(url_tbb https://github.com/01org/tbb/archive/${tbb_version}.tar.gz)
 
-set(make_args -j1 VERBOSE=on)
+
+set(make_args -j$ENV{REZ_BUILD_THREAD_COUNT} VERBOSE=on)
 
 ExternalProject_add(
     tbb
     URL ${url_tbb}
     PREFIX tbb
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
+    INSTALL_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/copy_files.sh ${CMAKE_CURRENT_BINARY_DIR}/tbb/src/tbb ${CMAKE_INSTALL_PREFIX}
+    ALWAYS 1
+    BUILD_IN_SOURCE 1
 )
 
-install(DIRECTORY ${CMAKE_BINARY_DIR}/tbb/src/tbb DESTINATION .)
+#ExternalProject_Get_Property(tbb source_dir)
+#message(STATUS "tbb_source: ${source_dir}")
+#file(GLOB_RECURSE libs ${source_dir}/build/*_release/libtbb*)
+#install(FILES ${libs} DESTINATION lib)
+#install(DIRECTORY ${source_dir}/include/serial DESTINATION include)
+#install(DIRECTORY ${source_dir}/include/tbb DESTINATION include)
 
-rez_install_files(
-    cmake/tbb.cmake
-    DESTINATION .
+
+install(
+    FILES cmake/tbb.cmake
+    DESTINATION cmake
 )
